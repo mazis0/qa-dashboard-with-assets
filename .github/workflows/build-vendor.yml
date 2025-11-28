@@ -1,41 +1,52 @@
-name: Build Laravel Vendor
+name: Build & Upload ZIP
 
 on:
   push:
-    branches: ["main"]
-  workflow_dispatch:
+    branches: [ "main" ]
 
 jobs:
-  build:
+  build-zip:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: mbstring, intl, mysql, sqlite, tokenizer, fileinfo
+          php-version: "8.2"
+          extensions: mbstring, intl, pdo_mysql
           coverage: none
 
-      - name: Install Composer
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Install Node Modules
         run: |
-          php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-          php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+          if [ -f package.json ]; then
+            npm install
+            npm run build || true
+          fi
 
-      - name: Install dependencies (no-dev)
-        working-directory: ./laravel_app
-        run: composer install --no-dev --prefer-dist --optimize-autoloader
+      - name: Prepare Build Directory
+        run: |
+          mkdir build
+          rsync -av \
+            --exclude=build \
+            --exclude=.git \
+            --exclude=node_modules \
+            --exclude=playwright-integration \
+            --exclude=.github \
+            ./ ./build/
 
-      - name: Create vendor.zip
-        working-directory: ./laravel_app
-        run: zip -r ../vendor.zip vendor
+      - name: Create ZIP File
+        run: |
+          cd build
+          zip -r ../laravel-build.zip .
 
-      - name: Upload vendor.zip artifact
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vendor
-          path: vendor.zip
-          retention-days: 7
+          name: laravel-build
+          path: laravel-build.zip
