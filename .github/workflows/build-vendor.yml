@@ -1,0 +1,29 @@
+name: Build Laravel Vendor
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql, xml, gd
+      - name: Install Composer
+        run: |
+          curl -sS https://getcomposer.org/installer | php
+          sudo mv composer.phar /usr/local/bin/composer
+      - name: Install deps
+        run: composer install --no-dev --prefer-dist --no-progress --optimize-autoloader
+      - name: Zip vendor
+        run: zip -r vendor.zip vendor
+      - uses: actions/upload-artifact@v3
+        with:
+          name: vendor
+          path: vendor.zip

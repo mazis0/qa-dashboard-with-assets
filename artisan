@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+echo "This is a placeholder for artisan. Install vendor by running composer install or fetch vendor.zip from GitHub Actions."
