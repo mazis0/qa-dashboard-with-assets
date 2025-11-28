@@ -1,18 +1,12 @@
-
 {
-  "name": "qa-dashboard-frontend",
-  "private": true,
+  "name": "qa-dashboard",
+  "version": "1.0.0",
+  "description": "QA Dashboard",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test": "echo "no tests""
+    "test": "echo \"no tests\""
   },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "chart.js": "^4.3.0"
-  },
-  "devDependencies": {
-    "vite": "^4.0.0"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }
